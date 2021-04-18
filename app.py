@@ -3,17 +3,19 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shop.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
 class Products(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
-    price = db.Column(db.Integer)
+    description = db.Column(db.Text, nullable=False)
+    price = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
         return '<Products %r>' %self.id
+
 
 @app.route("/")
 @app.route("/home")
@@ -21,13 +23,14 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/user/<string:name>/<int:id>")
-def user(name, id):
-    return "Hi, " + name + ": " + str(id)
-
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+
+@app.route("/add-product")
+def add_product():
+    return render_template("add-product.html")
 
 
 if __name__ == "__main__":
