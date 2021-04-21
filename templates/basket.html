@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
 {% block title %}
-ECOMART
+Your eco basket
 {% endblock title %}
 
 {% block body %}
 <div class="container mt-5">
-    <h1>Add a new product</h1>
+    <h1>In your basket</h1>
     <form action="/add-product" method="post" class="container">
         <input type="text" name="name" id="name" class="from-control mt-1" placeholder="Name"><br>
         <input name="price" id="price" class="from-control mt-1" placeholder="Price"><br>
