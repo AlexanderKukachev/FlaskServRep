@@ -4,6 +4,10 @@
 Экомарт!
 {% endblock title %}
 
+{% block basket %}
+<a class="me-3 py-2 text-dark text-decoration-none" href="/basket/{{ costumer_id }}">Basket</a>
+{% endblock basket %}
+
 {% block body %}
 <div class="container">
 <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
@@ -22,7 +26,10 @@
             <ul class="list-unstyled mt-3 mb-4">
               <li>{{ pr.description }}</li>
             </ul>
-            <button type="button" class="w-100 btn btn-lg btn-outline-primary">Add to the basket</button>
+            <form action="/" method="post" class="container">
+                <input type="hidden" name="product_id" value="{{ pr.id }}" readonly>
+                <input type="submit" class="btn btn-success" value="Add">
+            </form>
           </div>
         </div>
       </div>

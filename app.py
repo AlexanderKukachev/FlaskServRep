@@ -8,50 +8,91 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-class Products_DB(db.Model):
+class ProductsDB(db.Model):
+    __tablename__ = 'productsdb'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     price = db.Column(db.Integer, nullable=False)
+    product = db.relationship('OrdersDB', backref='product')
 
     def __repr__(self):
-        return '<Products_DB %r>' %self.id
+        return '<ProductsDB %r>' % self.name
 
 
-'''class CostumersDB(db.Model):
+class CostumersDB(db.Model):
+    __tablename__ = 'costumersdb'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    password = db.Column(db.Integer, nullable=False)
+    costumer = db.relationship('OrdersDB', backref='costumer')
 
     def __repr__(self):
-        return '<CostumersDB %r>' %self.id
+        return '<CostumersDB %r>' % self.name
 
-'''
-'''class OrdersDB(db.Model):
+
+class OrdersDB(db.Model):
+    __tablename__ = 'orderdb'
     id = db.Column(db.Integer, primary_key=True)
-    costumer_id = db.Column(db.Integer, db.ForeignKey('CostumersDB.id', ondelete='CASCADE'), nullable=False, index=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('ProductsDB.id', ondelete='CASCADE'), nullable=False, index=True)
-    date = db.Column(db.TIMESTAMP, nullable=False, default=datetime.now())
+    costumer_id = db.Column(db.Integer, db.ForeignKey('costumersdb.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('productsdb.id'))
+    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    number = db.Column(db.Integer, default=1)
 
     def __repr__(self):
         return '<OrdersDB %r>' % self.id
-'''
 
-@app.route("/")
-@app.route("/home")
+
+# Принять id текущего пользователя
+costumer_id = 1
+
+
+@app.route("/", methods=['POST', 'GET'])
+@app.route("/home", methods=['POST', 'GET'])
 def index():
-    products = Products_DB.query.order_by(Products_DB.id).all()
-    return render_template("index.html", products=products)
+    global costumer_id
+    products = ProductsDB.query.order_by(ProductsDB.id.desc()).all()  # Создаём список со всеми товарами из базы,
+    # для вывода на главную
+    if request.method == "POST":
+        product_id = int(request.form['product_id'])
+
+        orders = OrdersDB.query.filter_by(costumer_id=costumer_id).all()
+        for i in orders:
+            print(i.product_id==product_id)
+            print(type(i.product_id))
+            print(type(product_id))
+            if i.product_id == product_id:
+                i.number += 1
+                try:
+                    db.session.commit()
+                    return render_template("index.html", products=products, costumer_id=costumer_id)
+                except:
+                    return "Add fault!"
+
+        order = OrdersDB(costumer_id=costumer_id, product_id=product_id)
+        try:
+            db.session.add(order)
+            db.session.commit()
+            return render_template("index.html", products=products, costumer_id=costumer_id)
+        except:
+            return "Add fault!"
+    else:
+        return render_template("index.html", products=products, costumer_id=costumer_id)
 
 
 @app.route("/about")
 def about():
-    return render_template("about.html")
+    return render_template("about.html", costumer_id=costumer_id)
 
 
-@app.route("/basket")
-def basket():
-
-    return render_template("basket.html")
+@app.route("/basket/<int:costumer_id>")
+def basket(costumer_id):
+    orders = OrdersDB.query.filter_by(costumer_id=costumer_id).all()
+    products = []
+    for i in orders:
+        products.append(ProductsDB.query.filter_by(id=i.product_id).first())
+        print(products)
+    return render_template("basket.html", products=products, orders=orders, costumer_id=costumer_id)
 
 
 @app.route("/add-product", methods=['POST', 'GET'])
@@ -61,7 +102,7 @@ def add_product():
         price = request.form['price']
         description = request.form['description']
 
-        product = Products_DB(name=name, price=price, description=description)
+        product = ProductsDB(name=name, price=price, description=description)
 
         try:
             db.session.add(product)
@@ -71,6 +112,23 @@ def add_product():
             return "Add fault!"
     else:
         return render_template("add-product.html")
+
+
+@app.route("/reg", methods=['POST', 'GET'])
+def reg():
+    if request.method == "POST":
+        name = request.form['name']
+        password = request.form['password']
+
+        user = CostumersDB(name=name, password=password)
+        try:
+            db.session.add(user)
+            db.session.commit()
+            return redirect('/home')
+        except:
+            return "Registration fault!"
+    else:
+        return render_template("reg.html", costumer_id=costumer_id)
 
 
 if __name__ == "__main__":
