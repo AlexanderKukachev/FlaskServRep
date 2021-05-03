@@ -58,9 +58,6 @@ def index():
 
         orders = OrdersDB.query.filter_by(costumer_id=costumer_id).all()
         for i in orders:
-            print(i.product_id == product_id)
-            print(type(i.product_id))
-            print(type(product_id))
             if i.product_id == product_id:
                 i.number += 1
                 try:
@@ -91,7 +88,6 @@ def basket(costumer_id):
     products = []
     for i in orders:
         products.append(ProductsDB.query.filter_by(id=i.product_id).first())
-        print(products)
     return render_template("basket.html", products=products, orders=orders, costumer_id=costumer_id)
 
 
