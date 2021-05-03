@@ -58,7 +58,7 @@ def index():
 
         orders = OrdersDB.query.filter_by(costumer_id=costumer_id).all()
         for i in orders:
-            print(i.product_id==product_id)
+            print(i.product_id == product_id)
             print(type(i.product_id))
             print(type(product_id))
             if i.product_id == product_id:
