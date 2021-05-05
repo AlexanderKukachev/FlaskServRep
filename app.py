@@ -51,8 +51,9 @@ costumer_id = 1
 @app.route("/home", methods=['POST', 'GET'])
 def index():
     global costumer_id
-    products = ProductsDB.query.order_by(ProductsDB.id.desc()).all()  # Создаём список со всеми товарами из базы,
+    # Создаём список со всеми товарами из базы,
     # для вывода на главную
+    products = ProductsDB.query.order_by(ProductsDB.id.desc()).all()
     if request.method == "POST":
         product_id = int(request.form['product_id'])
 

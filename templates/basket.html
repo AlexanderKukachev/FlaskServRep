@@ -10,7 +10,6 @@ Your eco basket
 
 {% block body %}
 <h2 class="my-5 container">Your basket</h2>
-{% if products|length > 0 %}
     <div class="container mt-5">
         {%for product in products%}
             <h4>{{ product.name }}</h4>
@@ -20,9 +19,8 @@ Your eco basket
                     <p>number: {{ ord.number }}</p>
                 {%endif%}
             {% endfor %}
+        {% else %}
+            <h2 class="my-5 container">is empty :(</h2>
         {% endfor %}
     </div>
-{% else %}
-    <h2 class="my-5 container">is empty :(</h2>
-{% endif %}
 {% endblock body %}
