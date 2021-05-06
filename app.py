@@ -63,7 +63,7 @@ def index():
                 i.number += 1
                 try:
                     db.session.commit()
-                    return render_template("index.html", products=products, costumer_id=costumer_id)
+                    return render_template("index.html", products=products)
                 except:
                     return "Add fault!"
 
@@ -71,11 +71,11 @@ def index():
         try:
             db.session.add(order)
             db.session.commit()
-            return render_template("index.html", products=products, costumer_id=costumer_id)
+            return render_template("index.html", products=products)
         except:
             return "Add fault!"
     else:
-        return render_template("index.html", products=products, costumer_id=costumer_id)
+        return render_template("index.html", products=products)
 
 
 @app.route("/about")
@@ -83,13 +83,13 @@ def about():
     return render_template("about.html", costumer_id=costumer_id)
 
 
-@app.route("/basket/<int:costumer_id>")
-def basket(costumer_id):
+@app.route("/basket")
+def basket():
     orders = OrdersDB.query.filter_by(costumer_id=costumer_id).all()
     products = []
     for i in orders:
         products.append(ProductsDB.query.filter_by(id=i.product_id).first())
-    return render_template("basket.html", products=products, orders=orders, costumer_id=costumer_id)
+    return render_template("basket.html", products=products, orders=orders)
 
 
 @app.route("/add-product", methods=['POST', 'GET'])
@@ -125,7 +125,7 @@ def reg():
         except:
             return "Registration fault!"
     else:
-        return render_template("reg.html", costumer_id=costumer_id)
+        return render_template("reg.html")
 
 
 if __name__ == "__main__":
